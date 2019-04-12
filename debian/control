@@ -1,0 +1,18 @@
+Source: lib-mysqludf-sys
+Priority: optional
+Maintainer: Stuart Longland <me@vk4msl.id.au>
+Build-Depends: debhelper (>= 9), pkg-config, libssl-dev, libmariadb-dev-compat,
+ gcc, make
+Standards-Version: 3.9.8
+Section: libs
+Homepage: http://www.mysqludf.org/about.html
+#Vcs-Git: https://anonscm.debian.org/collab-maint/lib-mysqludf-sys.git
+#Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/lib-mysqludf-sys.git
+
+Package: lib-mysqludf-sys
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: User defined function plug-in for MySQL and MariaDB
+ .
+ lib_mysqludf_sys is a MySQL/MariaDB plug-in that allows the database user
+ to execute commands in the database server's environment.

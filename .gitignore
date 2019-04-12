@@ -1,0 +1,4 @@
+lib_mysqludf_sys.c
+lib_mysqludf_sys.so
+work
+dist
