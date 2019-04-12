@@ -4,7 +4,7 @@ SOURCE_URI=https://raw.githubusercontent.com/mysqludf/lib_mysqludf_sys/$(RELEASE
 
 # Debian put the required files in a `server` sub-directory, so we must
 # do this rather than blindly trusting the CFLAGS that `mysql_config` emits.
-MYSQL_INCLUDE ?= $(shell mysql_config --variable=pkgincludedir)
+MYSQL_INCLUDE ?= $(shell pkg-config --variable=includedir mariadb)
 MYSQL_CFLAGS ?= -I$(MYSQL_INCLUDE)/server -I$(MYSQL_INCLUDE)
 MYSQL_LIBS ?= $(shell mysql_config --libs)
 

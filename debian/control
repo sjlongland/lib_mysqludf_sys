@@ -2,7 +2,7 @@ Source: lib-mysqludf-sys
 Priority: optional
 Maintainer: Stuart Longland <me@vk4msl.id.au>
 Build-Depends: debhelper (>= 9), pkg-config, libssl-dev, libmariadb-dev-compat,
- gcc, make
+ libmysqlclient18, gcc, make
 Standards-Version: 3.9.8
 Section: libs
 Homepage: http://www.mysqludf.org/about.html
