@@ -15,3 +15,20 @@ script:
       --docker
       --docker-image sjlongland/debian-pkg-build-env:latest
       --recycle-orig
+  # Prepare .ssh directory
+  - mkdir ~/.ssh
+  - chmod 0700 ~/.ssh
+  - echo "${UPLOAD_USER_KEY}" > ~/.ssh/id_rsa
+  - echo "${UPLOAD_HOST_KEY}" > ~/.ssh/known_hosts
+  # Upload the built packages
+  - >
+      (
+        echo "cd ${UPLOAD_DIR}";
+        find dist -type f | while read file; do
+          echo "put ${file}";
+        done
+      ) | sftp -i ~/.ssh/id_rsa
+                -P ${UPLOAD_PORT} ${UPLOAD_USER}@${UPLOAD_HOST}
+env:
+  global:
+    secure: "GooKRWfxJKaR2n6C53a/HUdw/q5UW96lCMnAijBHm0WL1ls5Mj14OhKwaTu85nZ7op7MMDXsZvLn5SzgyLEjpvnV3WoMquKMvo5Myx3G3je1IMaem68NCbylCLxuo/VazNhN9NK9FU/p6S6b0nX4KH+V2YTiUTpXdMBS4Mlp2x8qlDLucEwZi2BcW2tHNn4lJ/0NoF5CdhhVCly+39Y2Kze7hGBGU15QTacr36PhzYJ3J8ed7lQo6b76Rn3kfkk4cEW70hfSGYVqVwK0rxAGxbiVciM1JCHCmIUlfWsx+ru709rl0cTdIq6OfhnaFRAfBHeRXzLQOD48wKISvx7Yfi2Cb4XRHhjKOhQGjGrRVCY6za5akVO1MiAqdeaRdrJwCRRP3SFoZ2t42pTT+R/Lpnf/ESC5BoWofxBTO6DNwmvvKaRjX0DmJlT2ZfGNuxym+CbljPFrJhfxCFtnvV1mrltpbG5dU1aQbDlE7+WVy7JDTCCQp/qnuzm1wjeGPXKlDinlOpXuPHuUPRRpIbYax+xxu/xXALU8QbNZmSvpTkMUPuMYaJ4cxE3bZIPkiXMBsY/Vx1/gkbeD1AUymN0xYCdMwL83LwwHv12tzGhR0+Oancdwx+bQ6Hn55NopsRmUA3/XeCWoZsnGa3xXDcesCmrp7UyGDR1+vYgDRAYl24Q="
