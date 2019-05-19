@@ -1,10 +1,7 @@
 language: c
+dist: xenial
 services:
   - docker
-# set up
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y realpath
 # command to run build.
 script: 
   # Debian package build
