@@ -42,7 +42,7 @@ realclean: clean
 	-rm -f $(SOURCE)
 
 $(OUTPUT): $(SOURCE)
-	gcc -Wall $(MYSQL_CFLAGS) $(MYSQL_LIBS) \
+	gcc -Wall -Wl,-as-needed $(MYSQL_CFLAGS) $(MYSQL_LIBS) \
 		-shared $^ -o $@ -fPIC
 
 $(SOURCE):
