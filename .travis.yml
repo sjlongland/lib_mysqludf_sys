@@ -16,7 +16,7 @@ script:
   - >
       sh -ex ./mkdeb.sh
       --docker
-      --docker-image sjlongland/debian-pkg-build-env:latest
+      --docker-image sjlongland/debian-pkg-build-env:latest-ubuntu
       --recycle-orig
   # Prepare .ssh directory
   - tar -C ~ -xf .travis-secret.tar
