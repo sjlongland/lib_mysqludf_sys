@@ -33,10 +33,11 @@ fi
 : ${BUILD_FLAGS:=-us -uc}
 
 # Parse command-line arguments
-CLEAN_DIST=y
-CLEAN_WORK=y
-APPEND_RELEASE=y
-DOCKER=n
+: ${RECYCLE_ORIG:=n}
+: ${CLEAN_DIST:=y}
+: ${CLEAN_WORK:=y}
+: ${APPEND_RELEASE:=y}
+: ${DOCKER:=n}
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -52,8 +53,16 @@ while [ $# -gt 0 ]; do
 			DEBVER="$2"
 			shift
 			;;
+		--recycle-orig)
+			RECYCLE_ORIG=y
+			CLEAN_DIST=n
+			;;
 		--docker)
 			DOCKER=y
+			;;
+		--docker-image)
+			DOCKER_IMAGE="$2"
+			shift
 			;;
 		--no-append-release)
 			APPEND_RELEASE=n
@@ -81,12 +90,16 @@ if [ ${CLEAN_WORK} = y ]; then
 	# Create a work directory
 	[ ! -d ${WORKDIR} ] || rm -fr ${WORKDIR}
 	mkdir ${WORKDIR}
+else
+	[ -d ${WORKDIR} ] || mkdir ${WORKDIR}
 fi
 
 if [ ${CLEAN_DIST} = y ]; then
 	# Re-create the distribution directory
 	[ ! -d ${DISTDIR} ] || rm -fr ${DISTDIR}
 	mkdir ${DISTDIR}
+else
+	[ -d ${DISTDIR} ] || mkdir ${DISTDIR}
 fi
 
 # Are we using `docker` for this?
@@ -98,6 +111,7 @@ if [ "${DOCKER}" = y ]; then
 		-e VERSION=${VERSION} \
 		-e DEBVER=${DEBVER} \
 		-e BUILD_FLAGS="${BUILD_FLAGS}" \
+		-e RECYCLE_ORIG="${RECYCLE_ORIG}" \
 		-e WORKDIR=/tmp/work \
 		-e DISTDIR=/tmp/dist \
 		-e SRCDIR=/tmp/src \
@@ -118,16 +132,28 @@ if [ ${APPEND_RELEASE} = y ]; then
 	)
 fi
 
-# Create the package source directory
-mkdir ${WORKDIR}/${PACKAGE_VER}
-cp ${SRCDIR}/lib_mysqludf_sys.c ${SRCDIR}/Makefile \
-	${WORKDIR}/${PACKAGE_VER}
+if [ ${RECYCLE_ORIG} = n ] || \
+		[ ! -f ${DISTDIR}/lib-mysqludf-sys_${VERSION}.orig.tar.xz ]
+then
+	# Create the package source directory
+	mkdir ${WORKDIR}/${PACKAGE_VER}
+	cp ${SRCDIR}/lib_mysqludf_sys.c ${SRCDIR}/Makefile \
+		${WORKDIR}/${PACKAGE_VER}
 
-# Create the "original" tarball
-tar -C ${WORKDIR} \
-	-cvf ${WORKDIR}/lib-mysqludf-sys_${VERSION}.orig.tar \
-	${PACKAGE_VER}
-xz -9 ${WORKDIR}/lib-mysqludf-sys_${VERSION}.orig.tar
+	# Create the "original" tarball
+	tar -C ${WORKDIR} \
+		-cvf ${WORKDIR}/lib-mysqludf-sys_${VERSION}.orig.tar \
+		${PACKAGE_VER}
+	xz -9 ${WORKDIR}/lib-mysqludf-sys_${VERSION}.orig.tar
+else
+	# Copy the pre-made tarball to our work area
+	cp ${DISTDIR}/lib-mysqludf-sys_${VERSION}.orig.tar.xz \
+		${WORKDIR}
+
+	# Unpack it here
+	tar -C ${WORKDIR} -xJvf \
+		${WORKDIR}/lib-mysqludf-sys_${VERSION}.orig.tar.xz
+fi
 
 # Now put the Debian package files in
 tar -C ${SRCDIR} -cf - debian \
