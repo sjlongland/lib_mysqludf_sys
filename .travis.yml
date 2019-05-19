@@ -1,0 +1,15 @@
+services:
+  - docker
+# command to run build.
+script: 
+  # Debian package build
+  - >
+      sh -ex ./mkdeb.sh
+      --docker
+      --docker-image sjlongland/debian-pkg-build-env:latest
+  # Ubuntu package build
+  - >
+      sh -ex ./mkdeb.sh
+      --docker
+      --docker-image sjlongland/debian-pkg-build-env:latest
+      --recycle-orig
