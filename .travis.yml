@@ -2,6 +2,9 @@ language: c
 dist: xenial
 services:
   - docker
+# decryption of secrets
+before_install:
+  - openssl aes-256-cbc -K $encrypted_f6a0b98cfb34_key -iv $encrypted_f6a0b98cfb34_iv -in .travis-secret.tar.enc -out .travis-secret.tar -d
 # command to run build.
 script: 
   # Debian package build
@@ -16,10 +19,8 @@ script:
       --docker-image sjlongland/debian-pkg-build-env:latest
       --recycle-orig
   # Prepare .ssh directory
-  - mkdir ~/.ssh
+  - tar -C ~ -xf .travis-secret.tar
   - chmod 0700 ~/.ssh
-  - echo "${UPLOAD_USER_KEY}" > ~/.ssh/id_rsa
-  - echo "${UPLOAD_HOST_KEY}" > ~/.ssh/known_hosts
   # Upload the built packages
   - >
       (
@@ -27,8 +28,8 @@ script:
         find dist -type f | while read file; do
           echo "put ${file}";
         done
-      ) | sftp -i ~/.ssh/id_rsa
-                -P ${UPLOAD_PORT} ${UPLOAD_USER}@${UPLOAD_HOST}
+      ) | sftp -i ~/.ssh/id_rsa \
+          -P ${UPLOAD_PORT} ${UPLOAD_USER}@${UPLOAD_HOST}
 env:
   global:
-    secure: "GooKRWfxJKaR2n6C53a/HUdw/q5UW96lCMnAijBHm0WL1ls5Mj14OhKwaTu85nZ7op7MMDXsZvLn5SzgyLEjpvnV3WoMquKMvo5Myx3G3je1IMaem68NCbylCLxuo/VazNhN9NK9FU/p6S6b0nX4KH+V2YTiUTpXdMBS4Mlp2x8qlDLucEwZi2BcW2tHNn4lJ/0NoF5CdhhVCly+39Y2Kze7hGBGU15QTacr36PhzYJ3J8ed7lQo6b76Rn3kfkk4cEW70hfSGYVqVwK0rxAGxbiVciM1JCHCmIUlfWsx+ru709rl0cTdIq6OfhnaFRAfBHeRXzLQOD48wKISvx7Yfi2Cb4XRHhjKOhQGjGrRVCY6za5akVO1MiAqdeaRdrJwCRRP3SFoZ2t42pTT+R/Lpnf/ESC5BoWofxBTO6DNwmvvKaRjX0DmJlT2ZfGNuxym+CbljPFrJhfxCFtnvV1mrltpbG5dU1aQbDlE7+WVy7JDTCCQp/qnuzm1wjeGPXKlDinlOpXuPHuUPRRpIbYax+xxu/xXALU8QbNZmSvpTkMUPuMYaJ4cxE3bZIPkiXMBsY/Vx1/gkbeD1AUymN0xYCdMwL83LwwHv12tzGhR0+Oancdwx+bQ6Hn55NopsRmUA3/XeCWoZsnGa3xXDcesCmrp7UyGDR1+vYgDRAYl24Q="
+    secure: "iA8027zvLwm5jAkupGwuj/ryhA6EdzndtVosVnmCE+8VGb+0fwzd1shZ3NOqNf8dCZB0pLKLNZSYSHh7QU7TmJAMLpww06BbCOl1q1ZtHH1HgNOC6JiyESsvUz5EK3qTQWXJdMvYnU/kdYUIHaaflqZz/gEZiavQmYqMg5roQrCTUL0UUwcpepevvmeE2g+/uYd27lvdn145+TmWwHcFgfyyCj3U+fMGUAndKPCoEDQ7Vxs9FSm5PWZbJyCTNZBi7e5xYGAId6vun5Cc7gOJUKdpfSxmY7HZdh7hxTcw/ODB7oUy/rPiL0Z5aFgCRQL8hkZKTpWG5gPE1IwSX5qWeGK3q3ROwEw+ZEJz32WK9kcC5ly0Sq/6qLxpxNrB95T2ik35xx2iFEkMcDOKzyyrKuJELrMpZ5VT+CYs9cOrC/oeUEHrkpz+3j5iNNMo0tRdUIfOh9z9OuPyJWD/DdbLfy9n9q0ppp9App9pft+bwFPYZHs3+XbBL+wqjxYL2J58RzRHTTp+lpqBUXiTYNvtDElOjoOrUdmqCqNm2P1GNNjZHAkjLUs4++F92g59k3QxKZ/GL9ErQkKX2QSHayu9+oDCbiRU1Ms6ZZSn1EUwcgfU+Ee059SEFMrUwV1MwJVVYzPvR6rJOgPbYKBLlliEWEgoTALCSU8f9IycIN1VDko="
