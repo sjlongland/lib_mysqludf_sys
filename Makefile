@@ -45,5 +45,10 @@ $(OUTPUT): $(SOURCE)
 	gcc -Wall -Wl,-as-needed $(MYSQL_CFLAGS) $(MYSQL_LIBS) \
 		-shared $^ -o $@ -fPIC
 
-$(SOURCE):
+$(SOURCE): $(SOURCE).orig
+	sed 	-e '/^#include <m_ctype.h>/ s/m_ctype/mariadb_ctype/' \
+		-e '/^#include <m_string.h>/ d' \
+		$< > $@
+
+$(SOURCE).orig:
 	wget -O $@ $(SOURCE_URI)
