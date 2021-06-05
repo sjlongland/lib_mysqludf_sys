@@ -1,4 +1,6 @@
+lib_mysqludf_sys.c.orig
 lib_mysqludf_sys.c
+lib_mysqludf_sys.o
 lib_mysqludf_sys.so
 work
 dist
