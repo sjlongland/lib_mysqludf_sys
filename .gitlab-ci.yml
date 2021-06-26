@@ -1,0 +1,58 @@
+# Use my customised image, as it has the dependencies already installed.
+# This should speed up the package updates a big deal.
+image: sjlongland/debian-pkg-build-env
+
+# Settings to use for the test suite
+variables:
+
+stages:
+        - build
+        - deploy
+
+makedebs-debian:
+        # The stage for the `makedebs` job
+        stage: build
+        # How do we make Debian packages
+        script: |
+                bash ./mkdeb.sh
+        # Where the resulting files are kept
+        artifacts:
+                expire_in: 1 week
+                paths:
+                        - dist/
+
+makedebs-ubuntu:
+        # This step builds Debian packages for use on Ubuntu.
+        stage: build
+        # The image to use, this time we use the Ubuntu image.
+        image: sjlongland/debian-pkg-build-env:latest-ubuntu
+        # How do we make Debian packages
+        script: |
+                bash ./mkdeb.sh
+        # Where the resulting files are kept
+        artifacts:
+                expire_in: 1 week
+                paths:
+                        - dist/
+
+publish:
+    # Publish the packages to a remote server
+    stage: deploy
+    script: |
+        if [ -n "${DEPLOYMENT_SSH_CREDENTIALS}" ]; then
+            [ -d "${HOME}/.ssh" ] || mkdir -p ${HOME}/.ssh
+            base64 -d < "${DEPLOYMENT_SSH_CREDENTIALS}" | tar -C ${HOME}/.ssh -xJvf -
+            chown -vR $( id -u ):$( id -g ) ${HOME}/.ssh
+            chmod -v 0700 ${HOME}/.ssh
+            chmod -v 0600 ${HOME}/.ssh/*
+
+            cd dist
+            (
+                echo "cd incoming";
+                find . -type f | while read file; do
+                    echo "put $( basename "${file}" )";
+                done
+            ) | sftp -q -b - deploymenthost
+        else
+            echo "Deployment disabled for unprotected branches"
+        fi
