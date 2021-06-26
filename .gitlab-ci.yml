@@ -6,15 +6,28 @@ image: sjlongland/debian-pkg-build-env
 variables:
 
 stages:
-        - build
+        - buildsrc
+        - buildbin
         - deploy
+
+makesrc:
+        # The stage for the `makesrc` job
+        stage: buildsrc
+        # How do we make Debian source packages
+        script: |
+                bash ./mkdeb.sh --source
+        # Where the resulting files are kept
+        artifacts:
+                expire_in: 1 week
+                paths:
+                        - dist/
 
 makedebs-debian:
         # The stage for the `makedebs` job
-        stage: build
+        stage: buildbin
         # How do we make Debian packages
         script: |
-                bash ./mkdeb.sh
+                bash ./mkdeb.sh --recycle-orig
         # Where the resulting files are kept
         artifacts:
                 expire_in: 1 week
@@ -23,12 +36,12 @@ makedebs-debian:
 
 makedebs-ubuntu:
         # This step builds Debian packages for use on Ubuntu.
-        stage: build
+        stage: buildbin
         # The image to use, this time we use the Ubuntu image.
         image: sjlongland/debian-pkg-build-env:latest-ubuntu
         # How do we make Debian packages
         script: |
-                bash ./mkdeb.sh
+                bash ./mkdeb.sh --recycle-orig
         # Where the resulting files are kept
         artifacts:
                 expire_in: 1 week
