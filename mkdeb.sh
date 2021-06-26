@@ -53,9 +53,13 @@ while [ $# -gt 0 ]; do
 			DEBVER="$2"
 			shift
 			;;
+		--source)
+			BUILD_FLAGS="${BUILD_FLAGS} -S"
+			;;
 		--recycle-orig)
 			RECYCLE_ORIG=y
 			CLEAN_DIST=n
+			BUILD_FLAGS="${BUILD_FLAGS} -b"
 			;;
 		--docker)
 			DOCKER=y
