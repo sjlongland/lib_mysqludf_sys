@@ -52,6 +52,7 @@ publish:
     # Publish the packages to a remote server
     stage: deploy
     script: |
+        set -x
         if [ -n "${DEPLOYMENT_SSH_CREDENTIALS}" ]; then
             [ -d "${HOME}/.ssh" ] || mkdir -p ${HOME}/.ssh
             base64 -d < "${DEPLOYMENT_SSH_CREDENTIALS}" | tar -C ${HOME}/.ssh -xJvf -
@@ -65,7 +66,7 @@ publish:
                 find . -type f | while read file; do
                     echo "put $( basename "${file}" )";
                 done
-            ) | sftp -q -b - deploymenthost
+            ) | sftp -b - deploymenthost
         else
             echo "Deployment disabled for unprotected branches"
         fi
